@@ -287,9 +287,17 @@ function actualizarContadores(postalSeleccionada, grupoEquipo, equipo, totalPost
 }
 
 btnToggleMenu.addEventListener('click', (e)=> {
+    e.stopPropagation();
     const menuGrupos = document.getElementById('menuGrupos');
-    
     btnToggleMenu.innerHTML = !menuGrupos.classList.contains('desplegar__grupos') ? `<i class="fa-solid fa-xmark"></i>` : `<i class="fa-solid fa-bars"></i>`
-
     menuGrupos.classList.toggle('desplegar__grupos');
+});
+
+document.addEventListener('click', (e) => {
+    const menuAbierto = document.getElementById('headerPage');
+
+    if(menuAbierto && !menuAbierto.contains(e.target)) {
+        btnToggleMenu.innerHTML = !menuGrupos.classList.contains('desplegar__grupos') ? `<i class="fa-solid fa-xmark"></i>` : `<i class="fa-solid fa-bars"></i>`
+        menuGrupos.classList.toggle('desplegar__grupos');
+    }
 });
