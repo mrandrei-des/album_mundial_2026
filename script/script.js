@@ -160,7 +160,7 @@ function renderizarAlbum(gruposAlbum, postalesAlbum, postalesPegadasAlbum) {
             </div>
             <div class="equipo__progreso">
                 <div class="progreso__completado">
-                    <span>Completado</span>
+                    <span>Completado: </span>
                     <div class="completado__barra__inferior">
                         <div class="barra__superior cargando"></div>
                     </div>
@@ -169,11 +169,11 @@ function renderizarAlbum(gruposAlbum, postalesAlbum, postalesPegadasAlbum) {
                     </span>
                 </div>
                 <div class="progreso__cantidad">
-                    <span>Postales</span>
+                    <span>Postales:</span>
                     <span>
                         <strong class="cantidad">${totalPostales}</strong>
                     </span>
-                    <span>Pegadas</span>
+                    <span>Pegadas:</span>
                     <span>
                         <strong class="cantidad conseguidas">${cantidadPostalesPegadas}</strong>
                     </span>
@@ -284,18 +284,4 @@ function actualizarContadores(postalSeleccionada, grupoEquipo, equipo, totalPost
 
     let strCantidadConseguidas = grupoEquipo.querySelector('.progreso__cantidad strong.cantidad.conseguidas')
     strCantidadConseguidas.innerText = cantidadPostalesPegadas
-}
-
-btnAcordeonGrupo.addEventListener('click', (e)=> {
-    const padre = btnAcordeonGrupo.parentElement
-    desplegarEquiposGrupo(padre)
-})
-
-function desplegarEquiposGrupo(padre) {
-    const elemento = padre.nextElementSibling
-    elemento.classList.toggle('grupoActivo')
-
-    elemento.querySelectorAll('.contenedor__bandera').forEach(divEquipo => {
-        divEquipo.classList.toggle('animar_equipo')
-    });
 }
