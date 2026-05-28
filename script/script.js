@@ -2,7 +2,7 @@ import { supabase } from "./supabase.js"
 
 const album = document.getElementById('album')
 const sectionGrupoTitulo = document.getElementById('sectionGrupoTitulo')
-const btnAcordeonGrupo = document.getElementById('btnAcordeonGrupo')
+const btnToggleMenu = document.getElementById('toggleMenu')
 
 async function consultarEquipos() {
     const { data, error } = await supabase
@@ -285,3 +285,11 @@ function actualizarContadores(postalSeleccionada, grupoEquipo, equipo, totalPost
     let strCantidadConseguidas = grupoEquipo.querySelector('.progreso__cantidad strong.cantidad.conseguidas')
     strCantidadConseguidas.innerText = cantidadPostalesPegadas
 }
+
+btnToggleMenu.addEventListener('click', (e)=> {
+    const menuGrupos = document.getElementById('menuGrupos');
+    
+    btnToggleMenu.innerHTML = !menuGrupos.classList.contains('desplegar__grupos') ? `<i class="fa-solid fa-xmark"></i>` : `<i class="fa-solid fa-bars"></i>`
+
+    menuGrupos.classList.toggle('desplegar__grupos');
+});
