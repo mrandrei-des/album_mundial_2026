@@ -121,12 +121,14 @@ body {
 
     opacity: 0;
     transform: translateY(-500px);
+    min-height: 0;
     transition: transform .5s ease-in-out, opacity .5s ease-in-out;
 }
 
 .contenedor__menu__secundario.desplegar__grupos {
     opacity: 1;
     transform: translateY(0);
+    min-height: fit-content;
 }
 
 .lista__menu {
