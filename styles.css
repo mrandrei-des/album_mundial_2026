@@ -120,15 +120,13 @@ body {
     z-index: 40;
 
     opacity: 0;
-    transform: translateY(-500px);
-    min-height: 0;
+    transform: translateX(-500px);
     transition: transform .5s ease-in-out, opacity .5s ease-in-out;
 }
 
 .contenedor__menu__secundario.desplegar__grupos {
     opacity: 1;
-    transform: translateY(0);
-    min-height: fit-content;
+    transform: translateX(0);
 }
 
 .lista__menu {
