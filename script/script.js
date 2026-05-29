@@ -294,10 +294,12 @@ btnToggleMenu.addEventListener('click', (e)=> {
 });
 
 document.addEventListener('click', (e) => {
-    const menuAbierto = document.getElementById('headerPage');
-
-    if(menuAbierto && !menuAbierto.contains(e.target)) {
-        btnToggleMenu.innerHTML = !menuGrupos.classList.contains('desplegar__grupos') ? `<i class="fa-solid fa-xmark"></i>` : `<i class="fa-solid fa-bars"></i>`
-        menuGrupos.classList.toggle('desplegar__grupos');
+    const sectionMenu = document.getElementById('headerPage');
+    
+    if(!sectionMenu.contains(e.target)) {
+        if(menuGrupos.classList.contains('desplegar__grupos')) {
+            menuGrupos.classList.remove('desplegar__grupos');            
+            btnToggleMenu.innerHTML = `<i class="fa-solid fa-bars"></i>`
+        }
     }
 });
