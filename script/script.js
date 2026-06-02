@@ -4,6 +4,11 @@ const album = document.getElementById('album')
 const sectionGrupoTitulo = document.getElementById('sectionGrupoTitulo')
 const btnToggleMenu = document.getElementById('toggleMenu')
 
+let albumPostales = [];
+let catalogosPostales = [];
+let postalesPegadas = [];
+const timeOuts = {};
+
 async function consultarEquipos() {
     const { data, error } = await supabase
         .from('equipos_x_grupo')
@@ -104,20 +109,21 @@ function crearArrayNumeros(numeroInicio, numeroFin) {
 }
 
 document.addEventListener('DOMContentLoaded', async (e)=> {    
-    const album = await consultarEquipos();
-    const catalogoPostales = await consultarPostales();
-    const postalesPegadas = await consultarPostalesPegadas();
+    albumPostales = await consultarEquipos();
+    catalogosPostales = await consultarPostales();
+    postalesPegadas = await consultarPostalesPegadas();
     
-    if(!album || !catalogoPostales || !postalesPegadas) return
+    if(!albumPostales || !catalogosPostales || !postalesPegadas) return
 
-    renderizarAlbum(album, catalogoPostales, postalesPegadas);    
+    renderizarAlbum();    
 });
 
-function renderizarAlbum(gruposAlbum, postalesAlbum, postalesPegadasAlbum) {
+function renderizarAlbum() {
 // Se procede a rendereizar cada uno de los grupos.
+    const contenedorFragmento = document.createDocumentFragment();
     album.innerHTML = ''
     
-    gruposAlbum.forEach(grupo => {        
+    albumPostales.forEach(grupo => {        
         let contenedorGrupo = document.createElement('div')
         contenedorGrupo.classList.add('contenedor__grupo')
         contenedorGrupo.setAttribute('id', grupo.codigo)
@@ -133,12 +139,13 @@ function renderizarAlbum(gruposAlbum, postalesAlbum, postalesPegadasAlbum) {
         let contenedorEquipos = document.createElement('div')
         contenedorEquipos.classList = 'grupo__contenedor__equipos'
 
+        //Reducir este proceso, sacarlo y hacerlo en funciones para evitar repetir procesos.
         grupo.equipos.forEach(equipo => {
-            let totalPostales = postalesAlbum[equipo.postales].length
-            let cantidadPostalesPegadas = postalesPegadasAlbum[equipo.codigo].length
+            let totalPostales = catalogosPostales[equipo.postales].length
+            let cantidadPostalesPegadas = postalesPegadas[equipo.codigo].length
             let porcentajeCompletado = Math.round((cantidadPostalesPegadas / totalPostales) * 100)
 
-            let pegadas = new Set(postalesPegadasAlbum[equipo.codigo])
+            let pegadas = new Set(postalesPegadas[equipo.codigo])
             
             let grupoEquipo = document.createElement('div')
             grupoEquipo.classList.add('grupo__equipo')
@@ -186,7 +193,7 @@ function renderizarAlbum(gruposAlbum, postalesAlbum, postalesPegadasAlbum) {
                 barra.style.width = `${porcentajeCompletado}%`
             });
             
-            let postalesEquipo = postalesAlbum[equipo.postales];
+            let postalesEquipo = catalogosPostales[equipo.postales];
             let equipoPostales = document.createElement('div')
             equipoPostales.classList.add('equipo__postales');
 
@@ -206,37 +213,62 @@ function renderizarAlbum(gruposAlbum, postalesAlbum, postalesPegadasAlbum) {
                 equipoPostales.innerHTML += `
                     <div class="${clasesCSS}" title="${tituloPostal}">${numPostal}</div>
                 `
-            })
+            });
             
             equipoPostales.querySelectorAll('.postal').forEach(postal => {
-                postal.addEventListener('click', async ()=> {
-                    let respuestaActualizacion = 0;
-                    let postalSelected = postal.innerText;
+                postal.addEventListener('click', ()=> {
+                    let postalSelected = postal.textContent;
                     postalSelected = parseInt(postalSelected);
 
+                    // Se actualiza la lista de postales pegadas
                     if(postal.classList.contains('postal__marcada')) {
-                        postalesPegadasAlbum[equipo.codigo] = postalesPegadasAlbum[equipo.codigo].filter(n => n !== parseInt(postalSelected));
+                        postalesPegadas[equipo.codigo] = postalesPegadas[equipo.codigo].filter(n => n !== parseInt(postalSelected));
                     }else {                        
-                        postalesPegadasAlbum[equipo.codigo].push(parseInt(postalSelected));
+                        postalesPegadas[equipo.codigo].push(parseInt(postalSelected));
                     }
+
+                    // Se actualizan los contadores en pantalla
+                    actualizarContadores(postal, grupoEquipo, equipo, catalogosPostales[equipo.postales].length, postalesPegadas[equipo.codigo].length);
+                    postal.classList.toggle('postal__marcada');
                     
-                    respuestaActualizacion = await actualizarPostalesPegadas(equipo.codigo, postalesPegadasAlbum[equipo.codigo]);
-                    if(respuestaActualizacion == 200) {
-                        actualizarContadores(postal, grupoEquipo, equipo, postalesAlbum[equipo.postales].length, postalesPegadasAlbum[equipo.codigo].length);
-                        postal.classList.toggle('postal__marcada');
-                    }else {
-                        alert("Ha ocurrido un problema a la hora de marcar la postal como pegada.");
-                    }
+                    if(timeOuts[equipo.codigo]) clearTimeout(timeOuts[equipo.codigo]);
+
+                    // Se presiona una postal, se esperan 2 segundos y se invoca a actualizar la lista de postales pegadas en el proceso
+                    timeOuts[equipo.codigo] = setTimeout(async () => {                       
+                        postalPresionada(equipo.codigo);
+                        delete timeOuts[equipo.codigo];
+                    }, 2000);
+
+                    // QUE EN PANTALLA SE VEA ACTUALIZADO NO QUIERE DECIR QUE YA ESTÉN GUARDADOS TODOS LOS CAMBIOS
+
+                    /** Aquí se implementa el setTimeOut */
+                    // respuestaActualizacion = await actualizarPostalesPegadas(equipo.codigo, postalesPegadas[equipo.codigo]);
+                    // if(respuestaActualizacion == 200) {
+                    //     actualizarContadores(postal, grupoEquipo, equipo, catalogosPostales[equipo.postales].length, postalesPegadas[equipo.codigo].length);
+                    //     postal.classList.toggle('postal__marcada');
+                    // }else {
+                    //     alert("Ha ocurrido un problema a la hora de marcar la postal como pegada.");
+                    // }
+                    // Se incluye todo esto
                 });
             });
-
             grupoEquipo.append(equipoPostales)
             contenedorEquipos.appendChild(grupoEquipo)
         });
-
         contenedorGrupo.append(contenedorEquipos)
-        album.appendChild(contenedorGrupo);        
-    });   
+        contenedorFragmento.appendChild(contenedorGrupo);
+    });
+    album.appendChild(contenedorFragmento);
+}
+
+async function postalPresionada(codigoEquipo) {
+    let respuestaActualizacion = await actualizarPostalesPegadas(codigoEquipo, postalesPegadas[codigoEquipo]);
+    if(respuestaActualizacion == 200) {
+        // Aquí se muestra la notificación
+        alert('Los cambios han sido guardados correctamente.');
+    }else {
+        alert("Ha ocurrido un problema a la hora de marcar la postal como pegada.");
+    }
 }
 
 async function actualizarPostalesPegadas(codigoEquipo, postalesPegadas) {
