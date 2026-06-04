@@ -118,11 +118,13 @@ document.addEventListener('DOMContentLoaded', async (e)=> {
     renderizarAlbum();    
 });
 
+// Esta función se encarga de renderizar el álbum con toda la información obtenida de la base de datos
 function renderizarAlbum() {
 // Se procede a rendereizar cada uno de los grupos.
     const contenedorFragmento = document.createDocumentFragment();
     album.innerHTML = ''
     
+    // Se crea el contenedor de los grupos con todo su título
     albumPostales.forEach(grupo => {        
         let contenedorGrupo = document.createElement('div')
         contenedorGrupo.classList.add('contenedor__grupo')
@@ -136,10 +138,10 @@ function renderizarAlbum() {
             </section>
         `
         // Se renderizan los equipos de ese grupo
-        let contenedorEquipos = document.createElement('div')
-        contenedorEquipos.classList = 'grupo__contenedor__equipos'
+        let contenedorEquipos = document.createElement('div');
+        contenedorEquipos.classList = 'grupo__contenedor__equipos';
 
-        //Reducir este proceso, sacarlo y hacerlo en funciones para evitar repetir procesos.
+        // Se crea el grupo que contiene 4 equipos excepto el primero que solo es la FIFA
         grupo.equipos.forEach(equipo => {
             let totalPostales = catalogosPostales[equipo.postales].length
             let cantidadPostalesPegadas = postalesPegadas[equipo.codigo].length
@@ -152,6 +154,7 @@ function renderizarAlbum() {
 
             let nombreImagen = equipo.codigo == 'FIFA' ? 'img/FIFA.png' : `img/${equipo.codigo}.webp`
             
+            // Se crea el equipo
             grupoEquipo.innerHTML = 
             `<div class="equipo__pais">
                 <div class="bandera">
@@ -187,6 +190,8 @@ function renderizarAlbum() {
                 </div>
             </div>
             `
+
+            // Se le da valor a la barra de progreso del país
             grupoEquipo.querySelectorAll('.completado__barra__inferior').forEach(item => {
                 var barra = item.querySelector('.barra__superior')                
                 barra.style.setProperty('--width', `${porcentajeCompletado}%`);
@@ -197,39 +202,35 @@ function renderizarAlbum() {
             let equipoPostales = document.createElement('div')
             equipoPostales.classList.add('equipo__postales');
 
+            // Se crean las postales, 20 por cada equipo
             postalesEquipo.forEach(numPostal => {
                 let clasesCSS = 'postal', tituloPostal = ''
                 if(equipo.postales == 'equipos') {
-                    clasesCSS += numPostal == 1 ? ' postal__escudo' : ''
-                    clasesCSS += numPostal == 13 ? ' postal__equipo' : ''
+                    clasesCSS += numPostal == 1 ? ' postal__escudo' : '';
+                    clasesCSS += numPostal == 13 ? ' postal__equipo' : '';
 
-                    tituloPostal = numPostal == 1 ? 'Escudo' : ''
-                    tituloPostal += numPostal == 13 ? 'Foto Equipo' : ''
+                    tituloPostal = numPostal == 1 ? 'Escudo' : '';
+                    tituloPostal += numPostal == 13 ? 'Foto Equipo' : '';
                 }
                 
                 let postalPegada = pegadas.has(numPostal)
-                clasesCSS += postalPegada ? ' postal__marcada' : ''
+                clasesCSS += postalPegada ? ' postal__marcada' : '';
 
-                equipoPostales.innerHTML += `
-                    <div class="${clasesCSS}" title="${tituloPostal}">${numPostal}</div>
-                `
-            });
-            
-            equipoPostales.querySelectorAll('.postal').forEach(postal => {
-                postal.addEventListener('click', ()=> {
-                    let postalSelected = postal.textContent;
-                    postalSelected = parseInt(postalSelected);
+                let divPostal = document.createElement('div');
+                divPostal.className = clasesCSS;
+                divPostal.setAttribute('title', tituloPostal);
+                divPostal.textContent = numPostal;
 
-                    // Se actualiza la lista de postales pegadas
-                    if(postal.classList.contains('postal__marcada')) {
-                        postalesPegadas[equipo.codigo] = postalesPegadas[equipo.codigo].filter(n => n !== parseInt(postalSelected));
+                divPostal.addEventListener('click', (e) => {
+                    // Se actualiza la lista de postales pegadas                    
+                    if(divPostal.classList.contains('postal__marcada')) {
+                        postalesPegadas[equipo.codigo] = postalesPegadas[equipo.codigo].filter(n => n !== parseInt(numPostal));
                     }else {                        
-                        postalesPegadas[equipo.codigo].push(parseInt(postalSelected));
+                        postalesPegadas[equipo.codigo].push(parseInt(numPostal));
                     }
-
                     // Se actualizan los contadores en pantalla
-                    actualizarContadores(postal, grupoEquipo, equipo, catalogosPostales[equipo.postales].length, postalesPegadas[equipo.codigo].length);
-                    postal.classList.toggle('postal__marcada');
+                    actualizarContadores(divPostal, grupoEquipo, equipo, catalogosPostales[equipo.postales].length, postalesPegadas[equipo.codigo].length);
+                    divPostal.classList.toggle('postal__marcada');
                     
                     if(timeOuts[equipo.codigo]) clearTimeout(timeOuts[equipo.codigo]);
 
@@ -238,24 +239,13 @@ function renderizarAlbum() {
                         postalPresionada(equipo.codigo);
                         delete timeOuts[equipo.codigo];
                     }, 2000);
-
-                    // QUE EN PANTALLA SE VEA ACTUALIZADO NO QUIERE DECIR QUE YA ESTÉN GUARDADOS TODOS LOS CAMBIOS
-
-                    /** Aquí se implementa el setTimeOut */
-                    // respuestaActualizacion = await actualizarPostalesPegadas(equipo.codigo, postalesPegadas[equipo.codigo]);
-                    // if(respuestaActualizacion == 200) {
-                    //     actualizarContadores(postal, grupoEquipo, equipo, catalogosPostales[equipo.postales].length, postalesPegadas[equipo.codigo].length);
-                    //     postal.classList.toggle('postal__marcada');
-                    // }else {
-                    //     alert("Ha ocurrido un problema a la hora de marcar la postal como pegada.");
-                    // }
-                    // Se incluye todo esto
                 });
+                equipoPostales.appendChild(divPostal);
             });
-            grupoEquipo.append(equipoPostales)
-            contenedorEquipos.appendChild(grupoEquipo)
+            grupoEquipo.append(equipoPostales);
+            contenedorEquipos.appendChild(grupoEquipo);
         });
-        contenedorGrupo.append(contenedorEquipos)
+        contenedorGrupo.append(contenedorEquipos);
         contenedorFragmento.appendChild(contenedorGrupo);
     });
     album.appendChild(contenedorFragmento);
