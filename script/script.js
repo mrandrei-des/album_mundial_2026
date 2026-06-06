@@ -15,20 +15,37 @@ const btnLimpiarBusqueda = document.getElementById('btnLimpiarBusqueda');
 const btnDescargarFaltantes = document.getElementById('btn__descargar__faltantes');
 
 btnDescargarFaltantes.addEventListener('click', () => {
+
+    
     btnDescargarFaltantes.innerText = 'Iniciando descarga...';
     setTimeout(() => {
+        let codigoPais = '';
+        let codigoCatalogo = '';
         let postalesFaltantes = {};
         let textoDescarga = 'Postales faltantes por equipo:\n\n';
 
-        postalesFaltantes['MEX'] = catalogosPostales['equipos'].filter(postal => !postalesPegadas['MEX'].includes(postal));
+        albumPostales.forEach(grupo => { 
+            let equipos = grupo.equipos;
+            equipos.forEach(equipo => {
+                codigoPais = equipo.codigo;
+                codigoCatalogo = equipo.postales;
+                postalesFaltantes[codigoPais] = catalogosPostales[codigoCatalogo].filter(postal => !postalesPegadas[codigoPais].includes(postal));                
+            });
+        });
+
+        for(let codigo in postalesFaltantes) {
+            textoDescarga += `${codigo}: ${postalesFaltantes[codigo].join(', ')}\n`;
+        }
+
         btnDescargarFaltantes.innerText = 'Descargar faltantes';
-        textoDescarga += `México (MEX): ${postalesFaltantes['MEX'].join(', ')}\n`;
         copiarAlPortapapeles(textoDescarga);
     }, 1000);
 });
 
 async function copiarAlPortapapeles(texto) {
     await navigator.clipboard.writeText(texto);
+
+    // Agregar una notificación visual de que el texto ha sido copiado al portapapeles
     alert('Texto copiado al portapapeles');
 }
 
