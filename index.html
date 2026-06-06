@@ -8,6 +8,43 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+        <div class="contenedor__caja_herramientas">
+        <div class="caja__herramientas__herramienta">
+            <button type="button" class="btn_herramienta__emergente">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+
+            <div class="herramienta__titulo__accion">
+                <div class="contenedor__input__busqueda">
+                    <label class="formulario_etiqueta" for="paisBusqueda">País a buscar:</label>
+                    <input type="text" class="input input__busqueda" aria-label="Escribe cuál país deseas buscar" placeholder="Escribe el país a buscar" id="paisBusqueda">
+                </div>
+                <button type="button" class="btn_limpiar__busqueda" title="Limpiar búsqueda" id="btnLimpiarBusqueda">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="caja__herramientas__herramienta">
+            <button type="button" class="btn_herramienta__emergente">
+                <i class="fa-solid fa-download"></i>
+            </button>
+
+            <div class="herramienta__titulo__accion">
+                <button type="button" class="btn_descargar__faltantes" id="btn__descargar__faltantes">
+                    Descargar faltantes
+                </button>
+            </div>
+        </div>
+
+        <div class="caja__herramientas__herramienta herramienta__emergente" title="Mostrar herramientas">
+            <button type="button" class="btn_herramienta__emergente" id="btn_herramienta__emergente__configuracion">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+            </button>
+        </div>
+    </div>
+
     <header class="header" id="headerPage">
         <div class="contenedor__menu">
             <div class="contenedor__logo">
@@ -122,6 +159,8 @@
     <main class="contenedor__principal">        
         <div class="contenedor__album" id="album"></div>
     </main>
+
+
 
     <script type="module" src="script/script.js"></script>
     <script src="https://kit.fontawesome.com/1de8be47a9.js" crossorigin="anonymous"></script>

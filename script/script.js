@@ -9,6 +9,55 @@ let catalogosPostales = [];
 let postalesPegadas = [];
 const timeOuts = {};
 
+const btnEmergente = document.getElementById('btn_herramienta__emergente__configuracion');
+const herramientasEmergentes = document.querySelectorAll('.caja__herramientas__herramienta:not(.herramienta__emergente)');   
+const btnLimpiarBusqueda = document.getElementById('btnLimpiarBusqueda');
+const btnDescargarFaltantes = document.getElementById('btn__descargar__faltantes');
+
+btnDescargarFaltantes.addEventListener('click', () => {
+    btnDescargarFaltantes.innerText = 'Iniciando descarga...';
+    setTimeout(() => {
+        let postalesFaltantes = {};
+        let textoDescarga = 'Postales faltantes por equipo:\n\n';
+
+        postalesFaltantes['MEX'] = catalogosPostales['equipos'].filter(postal => !postalesPegadas['MEX'].includes(postal));
+        btnDescargarFaltantes.innerText = 'Descargar faltantes';
+        textoDescarga += `México (MEX): ${postalesFaltantes['MEX'].join(', ')}\n`;
+        copiarAlPortapapeles(textoDescarga);
+    }, 1000);
+});
+
+async function copiarAlPortapapeles(texto) {
+    await navigator.clipboard.writeText(texto);
+    alert('Texto copiado al portapapeles');
+}
+
+btnEmergente.addEventListener('click', () => {
+    herramientasEmergentes.forEach(herramienta => {
+        herramienta.classList.toggle('mostrarHerramientaEmergente');
+    });    
+    btnEmergente.classList.toggle('btn_herramienta__emergente--activo');
+});
+
+btnLimpiarBusqueda.addEventListener('click', () => {
+    const inputBusquedaPaises = document.getElementById('paisBusqueda');
+    inputBusquedaPaises.value = '';
+    btnLimpiarBusqueda.classList.remove('btn_limpiar__busqueda--visible');
+});
+
+const inputBusquedaPaises = document.getElementById('paisBusqueda');
+inputBusquedaPaises.addEventListener('input', (event) => {
+
+    if(event.target.value.trim() === '') btnLimpiarBusqueda.classList.remove('btn_limpiar__busqueda--visible');
+    else btnLimpiarBusqueda.classList.add('btn_limpiar__busqueda--visible');
+    
+    if(event.target.value.trim().length >= 3) {
+        console.log(event.target.value.trim());
+    }else if(event.target.value.trim().length == 0) {
+        console.log('No hay nada escrito');
+    }
+});
+
 async function consultarEquipos() {
     const { data, error } = await supabase
         .from('equipos_x_grupo')
@@ -156,7 +205,7 @@ function renderizarAlbum() {
             
             // Se crea el equipo
             grupoEquipo.innerHTML = 
-            `<div class="equipo__pais">
+            `<div class="equipo__pais" id="${equipo.codigo}">
                 <div class="bandera">
                     <img src="${nombreImagen}" alt="Bandera de ${equipo.nombre}">
                 </div>
@@ -225,7 +274,7 @@ function renderizarAlbum() {
                     // Se actualiza la lista de postales pegadas                    
                     if(divPostal.classList.contains('postal__marcada')) {
                         postalesPegadas[equipo.codigo] = postalesPegadas[equipo.codigo].filter(n => n !== parseInt(numPostal));
-                    }else {                        
+                    }else {
                         postalesPegadas[equipo.codigo].push(parseInt(numPostal));
                     }
                     // Se actualizan los contadores en pantalla
