@@ -46,7 +46,7 @@ async function copiarAlPortapapeles(texto) {
     await navigator.clipboard.writeText(texto);
 
     // Agregar una notificación visual de que el texto ha sido copiado al portapapeles
-    alert('Texto copiado al portapapeles');
+    alert('Postales faltantes copiadas al portapapeles');
 }
 
 btnEmergente.addEventListener('click', () => {
