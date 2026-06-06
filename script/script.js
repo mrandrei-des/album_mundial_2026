@@ -15,8 +15,6 @@ const btnLimpiarBusqueda = document.getElementById('btnLimpiarBusqueda');
 const btnDescargarFaltantes = document.getElementById('btn__descargar__faltantes');
 
 btnDescargarFaltantes.addEventListener('click', () => {
-
-    
     btnDescargarFaltantes.innerText = 'Iniciando descarga...';
     setTimeout(() => {
         let codigoPais = '';
@@ -46,14 +44,15 @@ async function copiarAlPortapapeles(texto) {
     await navigator.clipboard.writeText(texto);
 
     // Agregar una notificación visual de que el texto ha sido copiado al portapapeles
-    alert('Postales faltantes copiadas al portapapeles');
+    // alert('Postales faltantes copiadas al portapapeles');
+    crearNotificacion('Postales faltantes copiadas al portapapeles');
 }
 
 btnEmergente.addEventListener('click', () => {
     herramientasEmergentes.forEach(herramienta => {
         herramienta.classList.toggle('mostrarHerramientaEmergente');
     });    
-    btnEmergente.classList.toggle('btn_herramienta__emergente--activo');
+    btnEmergente.classList.toggle('btn_herramienta__emergente--activo');    
 });
 
 btnLimpiarBusqueda.addEventListener('click', () => {
@@ -320,8 +319,7 @@ function renderizarAlbum() {
 async function postalPresionada(codigoEquipo) {
     let respuestaActualizacion = await actualizarPostalesPegadas(codigoEquipo, postalesPegadas[codigoEquipo]);
     if(respuestaActualizacion == 200) {
-        // Aquí se muestra la notificación
-        alert('Los cambios han sido guardados correctamente.');
+        crearNotificacion('Cambios guardados');
     }else {
         alert("Ha ocurrido un problema a la hora de marcar la postal como pegada.");
     }
@@ -391,3 +389,30 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+
+function crearNotificacion(mensajeNotificacion) {
+    const contenedorNotificacion = document.createElement('div');
+    contenedorNotificacion.classList.add('contenedor__notificacion');
+    contenedorNotificacion.innerHTML = 
+    `
+        <div class="notificacion__items">
+            <div class="item__icon">
+                <span class="item__contenedor__icon">
+                    <i class="fa-solid fa-circle-check"></i>
+                </span>
+            </div>
+            <div class="item__titulo">
+                <h3 class="notificacion__titulo">
+                    ${mensajeNotificacion}
+                </h3>
+            </div>
+        </div>
+    `;
+
+    contenedorNotificacion.addEventListener('animationend', (e)=> {
+        if(e.animationName === 'retrocederProgreso') {
+            contenedorNotificacion.remove();
+        }
+    });
+    document.body.appendChild(contenedorNotificacion);
+}
