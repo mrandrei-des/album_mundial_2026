@@ -645,7 +645,7 @@ body {
     border-radius: 8px;
     background-color: #097;
     position: fixed;
-    bottom: 20px;
+    top: 90px;
     right: 15px;
     transform: translateX(100px);
     overflow: hidden;
