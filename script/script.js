@@ -25,9 +25,12 @@ btnDescargarFaltantes.addEventListener('click', () => {
         albumPostales.forEach(grupo => { 
             let equipos = grupo.equipos;
             equipos.forEach(equipo => {
+                let listaPostales = [];
                 codigoPais = equipo.codigo;
                 codigoCatalogo = equipo.postales;
-                postalesFaltantes[codigoPais] = catalogosPostales[codigoCatalogo].filter(postal => !postalesPegadas[codigoPais].includes(postal));                
+                listaPostales = catalogosPostales[codigoCatalogo].filter(postal => !postalesPegadas[codigoPais].includes(postal));
+
+                if(listaPostales.length > 0) postalesFaltantes[codigoPais] = listaPostales;
             });
         });
 
@@ -80,7 +83,7 @@ async function consultarEquipos() {
         .select('*')
 
     if (error) {
-        console.error('Error de conexión:', error.message)
+        console.error('Error de conexión:', error)
     }
 
     if(data.length > 0) {
@@ -176,11 +179,11 @@ function crearArrayNumeros(numeroInicio, numeroFin) {
 document.addEventListener('DOMContentLoaded', async (e)=> {    
     albumPostales = await consultarEquipos();
     catalogosPostales = await consultarPostales();
-    postalesPegadas = await consultarPostalesPegadas();
+    postalesPegadas = await consultarPostalesPegadas();   
     
     if(!albumPostales || !catalogosPostales || !postalesPegadas) return
 
-    renderizarAlbum();    
+    renderizarAlbum();
 });
 
 // Esta función se encarga de renderizar el álbum con toda la información obtenida de la base de datos
@@ -255,6 +258,13 @@ function renderizarAlbum() {
                 </div>
             </div>
             `
+
+            let strPorcentajeProgreso = grupoEquipo.querySelector('.progreso__completado strong.cantidad');
+            let imgCompletado = grupoEquipo.querySelector('.pais__completado img.img_completado');
+            if(porcentajeCompletado == 100) {
+                strPorcentajeProgreso.classList.add('equipoCompleto');
+                imgCompletado.classList.add('animado');
+            }
 
             // Se le da valor a la barra de progreso del país
             grupoEquipo.querySelectorAll('.completado__barra__inferior').forEach(item => {
